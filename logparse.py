@@ -7,6 +7,16 @@ from progressbar import ProgressBar
 from datetime import datetime
 
 def main():
+    try:
+        import colorama
+        from colorama import Fore,Style
+        colorama.init()
+        b_prefix = "["+Fore.RED+" FAIL "+Style.RESET_ALL+"] "
+        g_prefix = "["+Fore.GREEN+"  OK  "+Style.RESET_ALL+"] "
+    except ImportError:
+        b_prefix = "[FAILED] "
+        g_prefix = "[  OK  ] "
+        
     parser = argparse.ArgumentParser()
     parser.add_argument("-i",action='store',dest='in_file',help='Process this file only')
     parser.add_argument("-r",action='store',dest='in_dir',help='Process all files in this directory')
@@ -17,28 +27,28 @@ def main():
     res = []
     arguments = args.arguments.split(',')
     if args.in_file is None and args.in_dir is None:
-        print("[ XX ] You must enter an input file or directory")
+        print(b_prefix+"You must enter an input file or directory")
         sys.exit(1)
     elif args.in_file is not None and args.in_dir is not None:
-        print("[ XX ] You must enter a file OR a directory, not both")
+        print(b_prefix+"You must enter a file OR a directory, not both")
         sys.exit(1)
     elif args.in_file and not args.in_dir:
         if os.path.isfile(os.path.abspath(args.in_file)):
             res = _get_data(args.in_file)
         else:
-            print("[ XX ] Check your file path, it's incorrect")
+            print(b_prefix+"Check your file path, it's incorrect")
             sys.exit(1)
     elif args.in_dir and not args.in_file:
         if os.path.exists(args.in_dir):
             res = _get_data(args.in_dir)
         else:
-            print("[ XX ] Check your file path, it's incorrect")
+            print(b_prefix+"Check your file path, it's incorrect")
             sys.exit(1)
-    print("[ OK ] Total log lines: "+str(len(res)))
+    print(g_prefix+"Total log lines: "+str(len(res)))
     found = _sort_data(res, arguments)
-    print("[ OK ] Sorted log lines: "+str(len(found)))
+    print(g_prefix+"Sorted log lines: "+str(len(found)))
     _write_out(found)
-    print("[ OK ] Wrote "+str(len(found))+" lines to \'log_parse.txt\' in current directory")
+    print(g_prefix+"Wrote "+str(len(found))+" lines to \'log_parse.txt\' in current directory")
     
     sys.exit(0)
 
